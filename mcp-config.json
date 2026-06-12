@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "solidworks": {
+      "command": "C:\\solidworks-mcp\\publish\\SolidWorksMCP.exe",
+      "args": [],
+      "env": {
+        "SOLIDWORKS_VERSION": "2025",
+        "SOLIDWORKS_EXE_PATH": "C:\\Program Files\\SOLIDWORKS Corp\\SOLIDWORKS\\SLDWORKS.exe",
+        "SOLIDWORKS_AUTO_START": "false",
+        "SOLIDWORKS_START_TIMEOUT": "90"
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      # EnableWindowsTargeting lets the net8.0-windows server project compile
+      # on Linux; the COM calls are late-bound so no Windows SDK is needed.
+      - name: Build
+        run: dotnet build SolidWorksMCP.slnx --configuration Release
+
+      - name: Test
+        run: dotnet test tests/SolidWorksMCP.Core.Tests --configuration Release --no-build --logger "console;verbosity=normal"
