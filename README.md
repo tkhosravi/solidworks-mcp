@@ -28,9 +28,15 @@ Claude Desktop ⇄ (stdio/MCP) ⇄ SolidWorksMCP.exe ⇄ (COM) ⇄ SolidWorks 20
 | Prérequis | Détail |
 |---|---|
 | OS | Windows 10/11 (COM est exclusif à Windows) |
-| .NET | [SDK .NET 8.0](https://dotnet.microsoft.com/download/dotnet/8.0) ou plus récent |
+| .NET | **[SDK .NET 8.0](https://dotnet.microsoft.com/download/dotnet/8.0) ou plus récent — à installer sur la machine** (voir note ci-dessous) |
 | SolidWorks | 2025 SP5.0 — **doit être lancé avant le serveur** |
 | Claude Desktop | [claude.ai/download](https://claude.ai/download) |
+
+> **Le SDK .NET est indispensable pour compiler le serveur.** Téléchargez-le sur [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/8.0) (édition « SDK », pas seulement « Runtime ») et installez-le avant de lancer `dotnet build`. Vérifiez l'installation avec `dotnet --version` (vous devez obtenir `8.x` ou plus).
+>
+> *Faut-il aussi .NET sur la machine qui exécute le serveur ?* Cela dépend du mode de publication :
+> - **Publication framework-dependent** (par défaut) : le `.exe` a besoin du **runtime .NET 8** présent sur la machine. Comme le SDK contient le runtime, si vous compilez et exécutez sur la même machine, vous n'avez rien de plus à installer.
+> - **Publication self-contained** : le runtime est embarqué dans le `.exe` — la machine cible n'a alors besoin **d'aucune installation .NET** (voir l'étape 3 de l'[installation](#3-publier-un-exécutable-autonome)).
 
 > Par défaut, le serveur s'attache à l'instance SolidWorks **déjà ouverte** (via la Running Object Table). Il peut aussi démarrer SolidWorks automatiquement — voir [Variables d'environnement](#variables-denvironnement).
 
@@ -52,11 +58,19 @@ dotnet test
 
 ### 3. Publier un exécutable autonome
 
+**Option A — framework-dependent** (`.exe` léger, nécessite le runtime .NET 8 sur la machine) :
+
 ```powershell
 dotnet publish src\SolidWorksMCP -c Release -o C:\solidworks-mcp\publish
 ```
 
-Vous obtenez `C:\solidworks-mcp\publish\SolidWorksMCP.exe`.
+**Option B — self-contained** (`.exe` autonome, **aucune installation .NET requise** pour l'exécuter — idéal pour déployer sur une machine sans SDK) :
+
+```powershell
+dotnet publish src\SolidWorksMCP -c Release -r win-x64 --self-contained true -o C:\solidworks-mcp\publish
+```
+
+Dans les deux cas, vous obtenez `C:\solidworks-mcp\publish\SolidWorksMCP.exe`.
 
 ### 4. Vérification rapide
 
