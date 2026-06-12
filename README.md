@@ -302,6 +302,7 @@ Choix de conception :
 
 - **COM late-binding (`dynamic`)** : le serveur compile sans les assemblies d'interop SolidWorks. Pour du typage fort, référencez `SolidWorks.Interop.sldworks.dll` depuis `C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\api\redist\`.
 - **`Marshal.GetActiveObject` n'existe plus en .NET 8** : la connexion passe par un P/Invoke direct de `CLSIDFromProgID` (ole32) + `GetActiveObject` (oleaut32).
+- **Locale forcée en `en-US`** : la type-library de SolidWorks expose ses membres en anglais ; les appels `dynamic` sont donc faits sous la culture `en-US` pour que la résolution des noms fonctionne sur un Windows non anglais (sinon `TYPE_E_ELEMENTNOTFOUND`).
 - **Unités à la frontière** : l'API SolidWorks travaille en mètres/radians ; tous les outils acceptent des mm et des degrés et convertissent via `UnitsHelper`.
 - **stdout réservé au protocole MCP** : tous les logs partent sur stderr.
 
@@ -326,6 +327,7 @@ Les appels COM eux-mêmes ne sont pas testables sans SolidWorks ; pour un test d
 | `SolidWorks is not running` | Lancez SolidWorks avant d'utiliser un outil, ou activez `SOLIDWORKS_AUTO_START=true` pour que le serveur le démarre lui-même. |
 | Les outils n'apparaissent pas dans Claude Desktop | Vérifiez le chemin dans `claude_desktop_config.json` (antislashs doublés `\\`), puis redémarrez complètement Claude Desktop. Les logs MCP sont dans `%APPDATA%\Claude\logs\`. |
 | Erreur COM `0x800401E3` (MK_E_UNAVAILABLE) | SolidWorks n'est pas enregistré dans la ROT — démarrez SolidWorks normalement (pas en tant qu'administrateur si Claude ne l'est pas, et vice-versa : **les deux processus doivent avoir le même niveau d'élévation**). |
+| Erreur COM `0x8002802B` (TYPE_E_ELEMENTNOTFOUND) sur le premier appel | La connexion réussit mais la résolution des noms de méthodes COM échoue à cause d'une **locale Windows non anglaise**. Le serveur force désormais le thread en `en-US` pour contourner ce bug — assurez-vous d'exécuter une version ≥ celle qui inclut ce correctif (commit « fix: force en-US culture for COM late-binding »). |
 | `RPC_E_CALL_REJECTED` (0x80010001) | SolidWorks est occupé (reconstruction, boîte de dialogue ouverte). Fermez les dialogues et réessayez. |
 | Export DXF échoue sur une pièce | Le DXF direct ne marche que sur les pièces de tôlerie ; passez par une mise en plan sinon. |
 | Noms de fonctions en français | Les noms d'entités suivent la langue de l'interface SW : `Plan de face` au lieu de `Front Plane`, `Esquisse1` au lieu de `Sketch1`. Utilisez `ListFeatures` pour voir les vrais noms. |

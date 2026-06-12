@@ -1,8 +1,18 @@
+using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SolidWorksMCP.Core;
 using SolidWorksMCP.Services;
+
+// SolidWorks' COM type library exposes its member names in English. On a
+// non-English Windows, late-bound (`dynamic`) calls would otherwise fail name
+// resolution with TYPE_E_ELEMENTNOTFOUND. Default every thread to en-US so
+// IDispatch lookups behave the same regardless of the machine's locale.
+// (ToolRunner reasserts this per call as defence in depth.)
+var comCulture = CultureInfo.GetCultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = comCulture;
+Thread.CurrentThread.CurrentCulture = comCulture;
 
 var builder = Host.CreateApplicationBuilder(args);
 
